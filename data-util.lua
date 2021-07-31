@@ -34,7 +34,7 @@ end
 
 -- Add a prerequisite to a given technology
 function util.add_prerequisite(technology_name, prerequisite)
-  technology = data.raw.technology[technology_name]
+  local technology = data.raw.technology[technology_name]
   if technology and data.raw.technology[prerequisite] then
     if technology.prerequisites then
       table.insert(technology.prerequisites, prerequisite)
@@ -46,7 +46,7 @@ end
 
 -- Remove a prerequisite from a given technology
 function util.remove_prerequisite(technology_name, prerequisite)
-  technology = data.raw.technology[technology_name]
+  local technology = data.raw.technology[technology_name]
   local index = -1
   if technology and data.raw.technology[prerequisite] then
     for i, prereq in pairs(technology.prerequisites) do
@@ -63,7 +63,7 @@ end
 
 -- Add an effect to a given technology
 function util.add_effect(technology_name, effect)
-  technology = data.raw.technology[technology_name]
+  local technology = data.raw.technology[technology_name]
   if technology then
     table.insert(technology.effects, effect)
   end
@@ -71,7 +71,7 @@ end
 
 -- Set technology ingredients
 function util.set_tech_recipe(technology_name, ingredients)
-  technology = data.raw.technology[technology_name]
+  local technology = data.raw.technology[technology_name]
   if technology then
     technology.unit.ingredients = ingredients
   end
