@@ -274,6 +274,31 @@ function has_ingredient(recipe, ingredient)
   return false
 end
 
+-- Remove a product from a recipe, WILL NOT remove the only product
+function util.remove_product(recipe_name, old)
+  if me.bypass[recipe_name] then return end
+  if data.raw.recipe[recipe_name] then
+    remove_product(data.raw.recipe[recipe_name], old)
+    remove_product(data.raw.recipe[recipe_name].normal, old)
+    remove_product(data.raw.recipe[recipe_name].expensive, old)
+  end
+end
+
+function remove_product(recipe, old)
+  index = -1
+	if recipe ~= nil and recipe.results ~= nil then
+		for i, result in pairs(recipe.results) do 
+      if result.name == old or result[1] == old then
+        index = i
+        break
+      end
+    end
+    if index > -1 then
+      table.remove(recipe.results, index)
+    end
+  end
+end
+
 -- Replace one product with another in a recipe
 function util.replace_product(recipe_name, old, new)
   if data.raw.recipe[recipe_name] then
