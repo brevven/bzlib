@@ -83,11 +83,35 @@ function util.remove_prerequisite(technology_name, prerequisite)
   end
 end
 
+
 -- Add an effect to a given technology
 function util.add_effect(technology_name, effect)
   local technology = data.raw.technology[technology_name]
   if technology then
-    table.insert(technology.effects, effect)
+    if not technology.effects then technology.effects = {} end
+    if effect and effect.type == "unlock-recipe" then
+      if not data.raw.recipe[effect.recipe] then
+        return
+      end
+      table.insert(technology.effects, effect)
+    end
+  end
+end
+
+-- remove recipe unlock effect from a given technology
+function util.remove_recipe_effect(technology_name, recipe_name)
+  local technology = data.raw.technology[technology_name]
+  local index = -1
+  if technology then
+    for i, effect in pairs(technology.effects) do
+      if effect.type == "unlock-recipe" and effect.recipe == recipe_name then
+        index = i
+        break
+      end
+    end
+    if index > -1 then
+      table.remove(technology.effects, index)
+    end
   end
 end
 
