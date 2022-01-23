@@ -177,6 +177,33 @@ function add_ingredient(recipe, ingredient, quantity)
   end
 end
 
+-- Set an ingredient to a given quantity
+function util.set_ingredient(recipe_name, ingredient, quantity)
+  if me.bypass[recipe_name] then return end
+  if data.raw.recipe[recipe_name] and data.raw.item[ingredient] then
+    me.add_modified(recipe_name)
+    set_ingredient(data.raw.recipe[recipe_name], ingredient, quantity)
+    set_ingredient(data.raw.recipe[recipe_name].normal, ingredient, quantity)
+    set_ingredient(data.raw.recipe[recipe_name].expensive, ingredient, quantity)
+  end
+end
+
+function set_ingredient(recipe, ingredient, quantity)
+  if recipe ~= nil and recipe.ingredients ~= nil then
+    for i, existing in pairs(recipe.ingredients) do
+      if existing[1] == ingredient  then
+        existing[2] = quantity
+        return
+      elseif existing.name == ingredient then
+        existing.amount = quantity
+        existing.amount_min = nil
+        existing.amount_max = nil
+        return
+      end
+    end
+    table.insert(recipe.ingredients, {ingredient, quantity})
+  end
+end
 -- Add a given quantity of product to a given recipe. 
 -- Only works for recipes with multiple products
 function util.add_product(recipe_name, product)
