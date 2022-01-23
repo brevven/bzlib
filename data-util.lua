@@ -433,6 +433,10 @@ end
 
 -- Remove an element of type t and name from data.raw
 function util.remove_raw(t, name)
+  if not data.raw[t] then 
+    log(t.." not found in data.raw")
+    return
+  end
   if data.raw[t][name] then
     for i, elem in pairs(data.raw[t]) do
       if elem.name == name then 
