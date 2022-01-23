@@ -503,6 +503,17 @@ function util.set_subgroup(recipe_name, subgroup)
   end
 end
 
+-- Set recipe icons
+function util.set_icons(recipe_name, icons)
+  if me.bypass[recipe_name] then return end
+  if data.raw.recipe[recipe_name] then
+    me.add_modified(recipe_name)
+    data.raw.recipe[recipe_name].icons = icons
+    data.raw.recipe[recipe_name].icon = nil
+    data.raw.recipe[recipe_name].icon_size = nil
+  end
+end
+
 function util.set_to_founding(recipe)
   util.set_category(recipe, "founding")
   util.set_subgroup(recipe, "foundry-intermediate")
