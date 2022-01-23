@@ -17,6 +17,12 @@ else
   util.titanium_plate = "titanium-plate"
 end
 
+if mods["pyrawores"] then 
+  util.titanium_processing = "titanium-mk01"
+else
+  util.titanium_processing = "titanium-processing"
+end
+
 function util.fe_plus(sub)
   if mods["FactorioExtended-Plus-"..sub] then
     return true
