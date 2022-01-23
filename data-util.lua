@@ -548,7 +548,7 @@ function add_to_ingredient(recipe, it, amount)
         return
       end
 			if ingredient[1] == it then
-        ingredient[2] = ingredients[2] + amount
+        ingredient[2] = ingredient[2] + amount
         return
       end
 		end
