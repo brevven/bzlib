@@ -123,6 +123,30 @@ function util.set_tech_recipe(technology_name, ingredients)
   end
 end
 
+
+-- Add a given quantity of ingredient to a given recipe
+function util.add_or_add_to_ingredient(recipe_name, ingredient, quantity)
+  if me.bypass[recipe_name] then return end
+  if data.raw.recipe[recipe_name] and data.raw.item[ingredient] then
+    me.add_modified(recipe_name)
+    add_or_add_to_ingredient(data.raw.recipe[recipe_name], ingredient, quantity)
+    add_or_add_to_ingredient(data.raw.recipe[recipe_name].normal, ingredient, quantity)
+    add_or_add_to_ingredient(data.raw.recipe[recipe_name].expensive, ingredient, quantity)
+  end
+end
+
+function add_or_add_to_ingredient(recipe, ingredient, quantity)
+  if recipe ~= nil and recipe.ingredients ~= nil then
+    for i, existing in pairs(recipe.ingredients) do
+      if existing[1] == ingredient or existing.name == ingredient then
+        add_to_ingredient(recipe, ingredient, quantity)
+        return
+      end
+    end
+    table.insert(recipe.ingredients, {ingredient, quantity})
+  end
+end
+
 -- Add a given quantity of ingredient to a given recipe
 function util.add_ingredient(recipe_name, ingredient, quantity)
   if me.bypass[recipe_name] then return end
