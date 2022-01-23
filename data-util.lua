@@ -123,6 +123,13 @@ function util.set_tech_recipe(technology_name, ingredients)
   end
 end
 
+function util.set_enabled(recipe_name, enabled)
+  if data.raw.recipe[recipe_name] then
+    if data.raw.recipe[recipe_name].normal then data.raw.recipe[recipe_name].normal.enabled = enabled end
+    if data.raw.recipe[recipe_name].expensive then data.raw.recipe[recipe_name].expensive.enabled = enabled end
+    if not data.raw.recipe[recipe_name].normal then data.raw.recipe[recipe_name].enabled = enabled end
+  end
+end
 
 -- Add a given quantity of ingredient to a given recipe
 function util.add_or_add_to_ingredient(recipe_name, ingredient, quantity)
