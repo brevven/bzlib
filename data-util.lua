@@ -387,19 +387,19 @@ end
 -- Replace an amount of an ingredient in a recipe. Keep at least 1 of old.
 function util.replace_some_ingredient(recipe_name, old, old_amount, new, new_amount)
   if me.bypass[recipe_name] then return end
-  if data.raw.recipe[recipe_name] and data.raw.item[new] then
+  local is_fluid = not not data.raw.fluid[new]
+  if data.raw.recipe[recipe_name] and (data.raw.item[new] or is_fluid) then
     me.add_modified(recipe_name)
-    replace_some_ingredient(data.raw.recipe[recipe_name], old, old_amount, new, new_amount)
-    replace_some_ingredient(data.raw.recipe[recipe_name].normal, old, old_amount, new, new_amount)
-    replace_some_ingredient(data.raw.recipe[recipe_name].expensive, old, old_amount, new, new_amount)
+    replace_some_ingredient(data.raw.recipe[recipe_name], old, old_amount, new, new_amount, is_fluid)
+    replace_some_ingredient(data.raw.recipe[recipe_name].normal, old, old_amount, new, new_amount, is_fluid)
+    replace_some_ingredient(data.raw.recipe[recipe_name].expensive, old, old_amount, new, new_amount, is_fluid)
   end
 end
 
-function replace_some_ingredient(recipe, old, old_amount, new, new_amount)
+function replace_some_ingredient(recipe, old, old_amount, new, new_amount, is_fluid)
 	if recipe ~= nil and recipe.ingredients ~= nil then
     for i, existing in pairs(recipe.ingredients) do
       if existing[1] == new or existing.name == new then
-        log("Not adding "..new.." -- duplicate")
         return
       end
     end
@@ -411,7 +411,7 @@ function replace_some_ingredient(recipe, old, old_amount, new, new_amount)
         ingredient[2] = math.max(1, ingredient[2] - old_amount)
       end
 		end
-    add_ingredient(recipe, new, new_amount)
+    add_ingredient(recipe, new, new_amount, is_fluid)
 	end
 end
 
