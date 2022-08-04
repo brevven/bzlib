@@ -721,10 +721,9 @@ end
 
 -- Add crafting category to an entity
 function util.add_crafting_category(entity_type, entity, category)
-   if data.raw[entity_type][entity] then
+   if data.raw[entity_type][entity] and data.raw["recipe-category"][category] then
       for i, existing in pairs(data.raw[entity_type][entity].crafting_categories) do
         if existing == category then
-          log(entity.." not adding "..new.." -- duplicate")
           return
         end
       end
