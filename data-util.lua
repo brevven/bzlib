@@ -554,6 +554,20 @@ function remove_product(recipe, old)
   end
 end
 
+function util.set_main_product(recipe_name, product)
+  if data.raw.recipe[recipe_name] then
+    set_main_product(data.raw.recipe[recipe_name], product)
+    set_main_product(data.raw.recipe[recipe_name].normal, product)
+    set_main_product(data.raw.recipe[recipe_name].expensive, product)
+  end
+end
+
+function set_main_product(recipe, product)
+  if recipe then
+    recipe.main_product = product
+  end
+end
+
 -- Replace one product with another in a recipe
 function util.replace_product(recipe_name, old, new)
   if data.raw.recipe[recipe_name] then
