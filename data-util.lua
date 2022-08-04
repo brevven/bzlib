@@ -671,7 +671,7 @@ end
 -- Set recipe category
 function util.set_category(recipe_name, category)
   if me.bypass[recipe_name] then return end
-  if data.raw.recipe[recipe_name] then
+  if data.raw.recipe[recipe_name] and data.raw["recipe-category"][category] then
     me.add_modified(recipe_name)
     data.raw.recipe[recipe_name].category = category
   end
