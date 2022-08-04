@@ -120,7 +120,7 @@ end
 function util.remove_recipe_effect(technology_name, recipe_name)
   local technology = data.raw.technology[technology_name]
   local index = -1
-  if technology then
+  if technology and technology.effects then
     for i, effect in pairs(technology.effects) do
       if effect.type == "unlock-recipe" and effect.recipe == recipe_name then
         index = i
