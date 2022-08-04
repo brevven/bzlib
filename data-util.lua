@@ -111,6 +111,11 @@ function util.add_effect(technology_name, effect)
   end
 end
 
+-- Add an effect to a given technology to unlock recipe
+function util.add_unlock(technology_name, recipe)
+  util.add_effect(technology_name, {type="unlock-recipe", recipe=recipe})
+end
+
 -- remove recipe unlock effect from a given technology
 function util.remove_recipe_effect(technology_name, recipe_name)
   local technology = data.raw.technology[technology_name]
