@@ -149,6 +149,14 @@ function util.set_enabled(recipe_name, enabled)
   end
 end
 
+function util.set_hidden(recipe_name)
+  if data.raw.recipe[recipe_name] then
+    if data.raw.recipe[recipe_name].normal then data.raw.recipe[recipe_name].normal.hidden = true end
+    if data.raw.recipe[recipe_name].expensive then data.raw.recipe[recipe_name].expensive.hidden = true end
+    if not data.raw.recipe[recipe_name].normal then data.raw.recipe[recipe_name].hidden = true end
+  end
+end
+
 -- Add a given quantity of ingredient to a given recipe
 function util.add_or_add_to_ingredient(recipe_name, ingredient, quantity)
   if me.bypass[recipe_name] then return end
