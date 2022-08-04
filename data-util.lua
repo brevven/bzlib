@@ -328,27 +328,32 @@ function util.get_amount(recipe_name, product)
 end
 
 -- Replace one ingredient with another in a recipe
-function util.replace_ingredient(recipe_name, old, new)
+function util.replace_ingredient(recipe_name, old, new, amount)
   if me.bypass[recipe_name] then return end
-  if data.raw.recipe[recipe_name] and data.raw.item[new] then
+  if data.raw.recipe[recipe_name] and (data.raw.item[new] or data.raw.fluid[new]) then
     me.add_modified(recipe_name)
-    replace_ingredient(data.raw.recipe[recipe_name], old, new)
-    replace_ingredient(data.raw.recipe[recipe_name].normal, old, new)
-    replace_ingredient(data.raw.recipe[recipe_name].expensive, old, new)
+    replace_ingredient(data.raw.recipe[recipe_name], old, new, amount)
+    replace_ingredient(data.raw.recipe[recipe_name].normal, old, new, amount)
+    replace_ingredient(data.raw.recipe[recipe_name].expensive, old, new, amount)
   end
 end
 
-function replace_ingredient(recipe, old, new)
+function replace_ingredient(recipe, old, new, amount)
 	if recipe ~= nil and recipe.ingredients ~= nil then
     for i, existing in pairs(recipe.ingredients) do
       if existing[1] == new or existing.name == new then
-        log("Not adding "..new.." -- duplicate")
         return
       end
     end
 		for i, ingredient in pairs(recipe.ingredients) do 
-			if ingredient.name == old then ingredient.name = new end
-			if ingredient[1] == old then ingredient[1] = new end
+			if ingredient.name == old then 
+        ingredient.name = new 
+        if amount then ingredient.amount = amount end
+      end
+			if ingredient[1] == old then 
+        ingredient[1] = new
+        if amount then ingredient[2] = amount end
+      end
 		end
 	end
 end
