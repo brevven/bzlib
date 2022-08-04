@@ -183,23 +183,27 @@ end
 -- Add a given quantity of ingredient to a given recipe
 function util.add_ingredient(recipe_name, ingredient, quantity)
   if me.bypass[recipe_name] then return end
-  if data.raw.recipe[recipe_name] and data.raw.item[ingredient] then
+  local is_fluid = not not data.raw.fluid[ingredient]
+  if data.raw.recipe[recipe_name] and (data.raw.item[ingredient] or is_fluid) then
     me.add_modified(recipe_name)
-    add_ingredient(data.raw.recipe[recipe_name], ingredient, quantity)
-    add_ingredient(data.raw.recipe[recipe_name].normal, ingredient, quantity)
-    add_ingredient(data.raw.recipe[recipe_name].expensive, ingredient, quantity)
+    add_ingredient(data.raw.recipe[recipe_name], ingredient, quantity, is_fluid)
+    add_ingredient(data.raw.recipe[recipe_name].normal, ingredient, quantity, is_fluid)
+    add_ingredient(data.raw.recipe[recipe_name].expensive, ingredient, quantity, is_fluid)
   end
 end
 
-function add_ingredient(recipe, ingredient, quantity)
+function add_ingredient(recipe, ingredient, quantity, is_fluid)
   if recipe ~= nil and recipe.ingredients ~= nil then
     for i, existing in pairs(recipe.ingredients) do
       if existing[1] == ingredient or existing.name == ingredient then
-        log("Not adding "..ingredient.." -- duplicate")
         return
       end
     end
-    table.insert(recipe.ingredients, {ingredient, quantity})
+    if is_fluid then
+      table.insert(recipe.ingredients, {type="fluid", name=ingredient, amount=quantity})
+    else
+      table.insert(recipe.ingredients, {ingredient, quantity})
+    end
   end
 end
 
