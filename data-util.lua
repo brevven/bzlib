@@ -311,8 +311,8 @@ function util.set_hidden(recipe_name)
 end
 
 -- Add a given quantity of ingredient to a given recipe
-function util.add_or_add_to_ingredient(recipe_name, ingredient, quantity)
-  if me.bypass[recipe_name] then return end
+function util.add_or_add_to_ingredient(recipe_name, ingredient, quantity, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] and data.raw.item[ingredient] then
     me.add_modified(recipe_name)
     add_or_add_to_ingredient(data.raw.recipe[recipe_name], ingredient, quantity)
@@ -334,8 +334,8 @@ function add_or_add_to_ingredient(recipe, ingredient, quantity)
 end
 
 -- Add a given quantity of ingredient to a given recipe
-function util.add_ingredient(recipe_name, ingredient, quantity)
-  if me.bypass[recipe_name] then return end
+function util.add_ingredient(recipe_name, ingredient, quantity, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   local is_fluid = not not data.raw.fluid[ingredient]
   if data.raw.recipe[recipe_name] and (data.raw.item[ingredient] or is_fluid) then
     me.add_modified(recipe_name)
@@ -361,8 +361,8 @@ function add_ingredient(recipe, ingredient, quantity, is_fluid)
 end
 
 -- Add a given ingredient prototype to a given recipe
-function util.add_ingredient_raw(recipe_name, ingredient)
-  if me.bypass[recipe_name] then return end
+function util.add_ingredient_raw(recipe_name, ingredient, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] and (data.raw.item[ingredient.name] or data.raw.item[ingredient[1]]) then
     me.add_modified(recipe_name)
     add_ingredient_raw(data.raw.recipe[recipe_name], ingredient)
@@ -386,8 +386,8 @@ function add_ingredient_raw(recipe, ingredient)
 end
 
 -- Set an ingredient to a given quantity
-function util.set_ingredient(recipe_name, ingredient, quantity)
-  if me.bypass[recipe_name] then return end
+function util.set_ingredient(recipe_name, ingredient, quantity, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] and data.raw.item[ingredient] then
     me.add_modified(recipe_name)
     set_ingredient(data.raw.recipe[recipe_name], ingredient, quantity)
@@ -414,8 +414,12 @@ function set_ingredient(recipe, ingredient, quantity)
 end
 -- Add a given quantity of product to a given recipe. 
 -- Only works for recipes with multiple products
-function util.add_product(recipe_name, product)
-  if data.raw.recipe[recipe_name] and (data.raw.item[product[1]] or data.raw.item[product.name]) then
+function util.add_product(recipe_name, product, options)
+  if not should_force(options) and bypass(recipe_name) then return end
+  if data.raw.recipe[recipe_name] and 
+  (data.raw.item[product[1]] or data.raw.item[product.name] or
+   data.raw.fluid[product[1]] or data.raw.fluid[product.name]
+  ) then
     add_product(data.raw.recipe[recipe_name], product)
     add_product(data.raw.recipe[recipe_name].normal, product)
     add_product(data.raw.recipe[recipe_name].expensive, product)
@@ -481,17 +485,18 @@ function util.get_amount(recipe_name, product)
 end
 
 -- Replace one ingredient with another in a recipe
-function util.replace_ingredient(recipe_name, old, new, amount)
-  if me.bypass[recipe_name] then return end
+--    Use amount to set an amount. If that amount is a multiplier instead of an exact amount, set multiply true.
+function util.replace_ingredient(recipe_name, old, new, amount, multiply, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] and (data.raw.item[new] or data.raw.fluid[new]) then
     me.add_modified(recipe_name)
-    replace_ingredient(data.raw.recipe[recipe_name], old, new, amount)
-    replace_ingredient(data.raw.recipe[recipe_name].normal, old, new, amount)
-    replace_ingredient(data.raw.recipe[recipe_name].expensive, old, new, amount)
+    replace_ingredient(data.raw.recipe[recipe_name], old, new, amount, multiply)
+    replace_ingredient(data.raw.recipe[recipe_name].normal, old, new, amount, multiply)
+    replace_ingredient(data.raw.recipe[recipe_name].expensive, old, new, amount, multiply)
   end
 end
 
-function replace_ingredient(recipe, old, new, amount)
+function replace_ingredient(recipe, old, new, amount, multiply)
 	if recipe ~= nil and recipe.ingredients ~= nil then
     for i, existing in pairs(recipe.ingredients) do
       if existing[1] == new or existing.name == new then
@@ -501,19 +506,31 @@ function replace_ingredient(recipe, old, new, amount)
 		for i, ingredient in pairs(recipe.ingredients) do 
 			if ingredient.name == old then 
         ingredient.name = new 
-        if amount then ingredient.amount = amount end
+        if amount then
+          if multiply then
+            ingredient.amount = amount * ingredient.amount
+          else
+            ingredient.amount = amount
+          end
+        end
       end
 			if ingredient[1] == old then 
         ingredient[1] = new
-        if amount then ingredient[2] = amount end
+        if amount then
+          if multiply then
+            ingredient[2] = amount * ingredient[2]
+          else
+            ingredient[2] = amount
+          end
+        end
       end
 		end
 	end
 end
 
 -- Remove an ingredient from a recipe
-function util.remove_ingredient(recipe_name, old)
-  if me.bypass[recipe_name] then return end
+function util.remove_ingredient(recipe_name, old, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] then
     me.add_modified(recipe_name)
     remove_ingredient(data.raw.recipe[recipe_name], old)
@@ -538,8 +555,8 @@ function remove_ingredient(recipe, old)
 end
 
 -- Replace an amount of an ingredient in a recipe. Keep at least 1 of old.
-function util.replace_some_ingredient(recipe_name, old, old_amount, new, new_amount)
-  if me.bypass[recipe_name] then return end
+function util.replace_some_ingredient(recipe_name, old, old_amount, new, new_amount, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   local is_fluid = not not data.raw.fluid[new]
   if data.raw.recipe[recipe_name] and (data.raw.item[new] or is_fluid) then
     me.add_modified(recipe_name)
@@ -569,10 +586,10 @@ function replace_some_ingredient(recipe, old, old_amount, new, new_amount, is_fl
 end
 
 -- set the amount of a product. 
-function util.set_product_amount(recipe_name, product, amount)
+function util.set_product_amount(recipe_name, product, amount, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   me.add_modified(recipe_name)
   if data.raw.recipe[recipe_name] then
-    if me.bypass[recipe_name] then return end
     set_product_amount(data.raw.recipe[recipe_name], product, amount)
     set_product_amount(data.raw.recipe[recipe_name].normal, product, amount)
     set_product_amount(data.raw.recipe[recipe_name].expensive, product, amount)
@@ -609,10 +626,10 @@ function set_product_amount(recipe, product, amount)
 end
 
 -- multiply the cost, energy, and results of a recipe by a multiple
-function util.multiply_recipe(recipe_name, multiple)
+function util.multiply_recipe(recipe_name, multiple, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   me.add_modified(recipe_name)
   if data.raw.recipe[recipe_name] then
-    if me.bypass[recipe_name] then return end
     multiply_recipe(data.raw.recipe[recipe_name], multiple)
     multiply_recipe(data.raw.recipe[recipe_name].normal, multiple)
     multiply_recipe(data.raw.recipe[recipe_name].expensive, multiple)
@@ -682,10 +699,10 @@ function has_ingredient(recipe, ingredient)
 end
 
 -- Remove a product from a recipe, WILL NOT remove the only product
-function util.remove_product(recipe_name, old)
+function util.remove_product(recipe_name, old, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   me.add_modified(recipe_name)
   if data.raw.recipe[recipe_name] then
-    if me.bypass[recipe_name] then return end
     remove_product(data.raw.recipe[recipe_name], old)
     remove_product(data.raw.recipe[recipe_name].normal, old)
     remove_product(data.raw.recipe[recipe_name].expensive, old)
@@ -707,7 +724,8 @@ function remove_product(recipe, old)
   end
 end
 
-function util.set_main_product(recipe_name, product)
+function util.set_main_product(recipe_name, product, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] then
     set_main_product(data.raw.recipe[recipe_name], product)
     set_main_product(data.raw.recipe[recipe_name].normal, product)
@@ -722,7 +740,8 @@ function set_main_product(recipe, product)
 end
 
 -- Replace one product with another in a recipe
-function util.replace_product(recipe_name, old, new)
+function util.replace_product(recipe_name, old, new, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] then
     replace_product(data.raw.recipe[recipe_name], old, new)
     replace_product(data.raw.recipe[recipe_name].normal, old, new)
@@ -765,10 +784,10 @@ function util.remove_raw(t, name)
 end
 
 -- Set energy required
-function util.set_recipe_time(recipe_name, time)
+function util.set_recipe_time(recipe_name, time, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   me.add_modified(recipe_name)
   if data.raw.recipe[recipe_name] then
-    if me.bypass[recipe_name] then return end
     set_recipe_time(data.raw.recipe[recipe_name], time)
     set_recipe_time(data.raw.recipe[recipe_name].normal, time)
     set_recipe_time(data.raw.recipe[recipe_name].expensive, time)
@@ -784,10 +803,10 @@ function set_recipe_time(recipe, time)
 end
 
 -- Multiply energy required
-function util.multiply_time(recipe_name, factor)
+function util.multiply_time(recipe_name, factor, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   me.add_modified(recipe_name)
   if data.raw.recipe[recipe_name] then
-    if me.bypass[recipe_name] then return end
     multiply_time(data.raw.recipe[recipe_name], factor)
     multiply_time(data.raw.recipe[recipe_name].normal, factor)
     multiply_time(data.raw.recipe[recipe_name].expensive, factor)
@@ -803,10 +822,10 @@ function multiply_time(recipe, factor)
 end
 
 -- Add to energy required
-function util.add_time(recipe_name, amount)
+function util.add_time(recipe_name, amount, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   me.add_modified(recipe_name)
   if data.raw.recipe[recipe_name] then
-    if me.bypass[recipe_name] then return end
     add_time(data.raw.recipe[recipe_name], amount)
     add_time(data.raw.recipe[recipe_name].normal, amount)
     add_time(data.raw.recipe[recipe_name].expensive, amount)
@@ -822,8 +841,8 @@ function add_time(recipe, amount)
 end
 
 -- Set recipe category
-function util.set_category(recipe_name, category)
-  if me.bypass[recipe_name] then return end
+function util.set_category(recipe_name, category, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] and data.raw["recipe-category"][category] then
     me.add_modified(recipe_name)
     data.raw.recipe[recipe_name].category = category
@@ -831,8 +850,8 @@ function util.set_category(recipe_name, category)
 end
 
 -- Set recipe subgroup
-function util.set_subgroup(recipe_name, subgroup)
-  if me.bypass[recipe_name] then return end
+function util.set_subgroup(recipe_name, subgroup, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] then
     me.add_modified(recipe_name)
     data.raw.recipe[recipe_name].subgroup = subgroup
@@ -840,16 +859,16 @@ function util.set_subgroup(recipe_name, subgroup)
 end
 
 -- Set item subgroup
-function util.set_item_subgroup(item, subgroup)
-  if me.bypass[item] then return end
+function util.set_item_subgroup(item, subgroup, options)
+  if not should_force(options) and bypass(item) then return end -- imperfect, close enough for now?
   if data.raw.item[item] and data.raw["item-subgroup"][subgroup] then
     data.raw.item[item].subgroup = subgroup
   end
 end
 
 -- Set recipe icons
-function util.set_icons(recipe_name, icons)
-  if me.bypass[recipe_name] then return end
+function util.set_icons(recipe_name, icons, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] then
     me.add_modified(recipe_name)
     data.raw.recipe[recipe_name].icons = icons
@@ -907,11 +926,12 @@ function add_to_ingredient(recipe, it, amount)
 	end
 end
 
-function util.add_to_product(recipe, product, amount)
-  if data.raw.recipe[recipe] then
-    add_to_product(data.raw.recipe[recipe], product, amount)
-    add_to_product(data.raw.recipe[recipe].normal, product, amount)
-    add_to_product(data.raw.recipe[recipe].expensive, product, amount)
+function util.add_to_product(recipe_name, product, amount, options)
+  if not should_force(options) and bypass(recipe_name) then return end
+  if data.raw.recipe[recipe_name] then
+    add_to_product(data.raw.recipe[recipe_name], product, amount)
+    add_to_product(data.raw.recipe[recipe_name].normal, product, amount)
+    add_to_product(data.raw.recipe[recipe_name].expensive, product, amount)
   end
 end
 
