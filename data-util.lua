@@ -1040,4 +1040,79 @@ function util.create_list()
   end
 end
 
+function util.remove_prior_unlocks(tech, recipe)
+  if data.raw.technology[tech].prerequisites then
+    for i, prerequisite in pairs(data.raw.technology[tech].prerequisites) do
+      remove_prior_unlocks(prerequisite, recipe)
+    end
+  end
+end
+
+function remove_prior_unlocks(tech, recipe)
+  local technology = data.raw.technology[tech]
+  if technology then
+    util.remove_recipe_effect(tech, recipe)
+    if technology.prerequisites then
+      for i, prerequisite in pairs(technology.prerequisites) do
+        -- log("BZZZ removing prior unlocks for " .. tech ..", checking " .. prerequisite) -- Handy Debug :|
+        remove_prior_unlocks(prerequisite, recipe)
+      end
+    end
+  end
+end
+
+function util.replace_ingredients_prior_to(tech, old, new, multiplier)
+  if not data.raw.technology[tech] then
+    log("Not replacing ingredient "..old.." with "..new.." because tech "..tech.." was not found")
+    return
+  end
+  util.remove_prior_unlocks(tech, old)
+  for i, recipe in pairs(data.raw.recipe) do
+    if (recipe.enabled and recipe.enabled ~= 'false')
+      and (not recipe.hidden or recipe.hidden == 'true') -- probably don't want to change hidden recipes
+      and string.sub(recipe.name, 1, 3) ~= 'se-' -- have to exlude SE in general :(
+    then
+      -- log("BZZZ due to 'enabled' replacing " .. old .. " with " .. new .." in " .. recipe.name) -- Handy Debug :|
+      util.replace_ingredient(recipe.name, old, new, multiplier, true)
+    end
+  end
+  if data.raw.technology[tech].prerequisites then
+    for i, prerequisite in pairs(data.raw.technology[tech].prerequisites) do
+      replace_ingredients_prior_to(prerequisite, old, new, multiplier)
+    end
+  end
+end
+
+function replace_ingredients_prior_to(tech, old, new, multiplier)
+  local technology = data.raw.technology[tech]
+  if technology then
+    if technology.effects then
+      for i, effect in pairs(technology.effects) do
+        if effect.type == "unlock-recipe" then
+          -- log("BZZZ replacing " .. old .. " with " .. new .." in " .. effect.recipe) -- Handy Debug :|
+          util.replace_ingredient(effect.recipe, old, new, multiplier, true)
+        end
+      end
+    end
+    if technology.prerequisites then
+      for i, prerequisite in pairs(technology.prerequisites) do
+        -- log("BZZZ checking " .. prerequisite) -- Handy Debug :|
+        replace_ingredients_prior_to(prerequisite, old, new, multiplier)
+      end
+    end
+  end
+end
+
+function util.remove_all_recipe_effects(recipe_name)
+    for name, _ in pairs(data.raw.technology) do
+        util.remove_recipe_effect(name, recipe_name)
+    end
+end
+
+function util.add_unlock_force(technology_name, recipe)
+    util.set_enabled(recipe, false)
+    util.remove_all_recipe_effects(recipe)
+    util.add_unlock(technology_name, recipe)
+end
+
 return util
