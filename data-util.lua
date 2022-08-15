@@ -23,6 +23,41 @@ else
   util.titanium_processing = "titanium-processing"
 end
 
+function util.se6()
+  return mods["space-exploration"] and mods["space-exploration"] >= "0.6" 
+end
+
+util.cablesg = util.se6() and "electronic" or "cable"
+
+function get_setting(name)
+  if settings.startup[name] == nil then
+    return nil
+  end
+  return settings.startup[name].value
+end
+
+allbypass = {}
+if get_setting("bz-recipe-bypass") then 
+  for recipe in string.gmatch(me.get_setting("bz-recipe-bypass"), '[^",%s]+') do
+    allbypass[recipe] = true
+  end
+end
+
+function util.is_foundry()
+  return mods.bzfoundry and not me.get_setting("bzfoundry-minimal")
+end
+
+function should_force(options)
+  return options and options.force
+end
+
+
+function bypass(recipe_name) 
+  if me.bypass[recipe_name] then return true end
+  if allbypass[recipe_name] then return true end
+  if get_setting("bz-tabula-rasa") then return true end
+end
+
 function util.fe_plus(sub)
   if mods["FactorioExtended-Plus-"..sub] then
     return true
