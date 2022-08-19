@@ -920,9 +920,9 @@ function util.set_item_icons(item_name, icons)
   end
 end
 
-function util.set_to_founding(recipe)
-  util.set_category(recipe, "founding")
-  util.set_subgroup(recipe, "foundry-intermediate")
+function util.set_to_founding(recipe, options)
+  util.set_category(recipe, "founding", options)
+  util.set_subgroup(recipe, "foundry-intermediate", options)
 end
 
 -- Add crafting category to an entity
