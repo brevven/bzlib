@@ -145,6 +145,7 @@ function util.se_matter(params)
            icon_size = 64, scale = 0.5},
         },
         energy_required = params.energy_required,
+        enabled = false,
         ingredients = {
           {sedata, 1},
           {type="fluid", name="se-particle-stream", amount=50},
@@ -155,7 +156,7 @@ function util.se_matter(params)
           {"se-contaminated-scrap", 1},
           {type=item, name=sedata, amount=1, probability=.99},
           {type=item, name=sejunk, amount=1, probability=.01},
-          {type="fluid", name="se-space-coolant-hot", amount=25},
+          {type="fluid", name="se-space-coolant-hot", amount=25, catalyst_amount=25},
         }
       }
     })
@@ -164,6 +165,7 @@ function util.se_matter(params)
     if mods.Krastorio2 then
       local lname = params.ore.."-to-particle-stream"
       data:extend({
+        enabled = false,
         {
           type = "recipe",
           name = lname,
@@ -182,6 +184,7 @@ function util.se_matter(params)
              icon_size = 64, scale = 0.5},
           },
           energy_required = 30,
+          enabled = false,
           ingredients = {
             {"se-kr-matter-liberation-data", 1},
             {params.ore, params.quant_in},
@@ -190,7 +193,7 @@ function util.se_matter(params)
           results = {
             {type=item, name="se-kr-matter-liberation-data", amount=1, probability=.99},
             {type=item, name=sejunk, amount=1, probability=.01},
-            {type="fluid", name="se-particle-stream", amount=params.stream_out},
+            {type="fluid", name="se-particle-stream", amount=params.stream_out, catalyst_amount=50},
           }
         }
       })
