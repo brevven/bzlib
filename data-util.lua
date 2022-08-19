@@ -252,6 +252,9 @@ function util.add_prerequisite(technology_name, prerequisite)
   local technology = data.raw.technology[technology_name]
   if technology and data.raw.technology[prerequisite] then
     if technology.prerequisites then
+      for i, pre in pairs(technology.prerequisites) do
+        if pre == prerequisite then return end
+      end
       table.insert(technology.prerequisites, prerequisite)
     else
       technology.prerequisites = {prerequisite}
