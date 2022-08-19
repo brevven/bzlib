@@ -89,6 +89,34 @@ function util.contains(table, sought)
   return false
 end
 
+
+-- se landfill
+-- params: ore, icon_size
+function util.se_landfill(params)
+  if mods["space-exploration"] then
+    if not params.icon_size then params.icon_size = 64 end
+    local lname="landfill-"..params.ore
+    data:extend({
+      {
+        type = "recipe",
+        icons = {
+          { icon = "__base__/graphics/icons/landfill.png", icon_size = 64, icon_mipmaps = 3 },
+          { icon = "__"..me.name.."__/graphics/icons/"..params.ore..".png", icon_size = params.icon_size, scale = 0.33*64/params.icon_size},
+        },
+        energy_required = 1,
+        enabled=false,
+        name = lname,
+        category = "hard-recycling",
+        order = "z-b-"..params.ore,
+        subgroup = "terrain",
+        result = "landfill",
+        ingredients = {{params.ore, 50}},
+      }
+    })
+    util.add_unlock("se-recycling-facility", lname)
+  end
+end
+
 -- se matter
 -- params: ore, energy_required, quant_out, quant_in, icon_size, stream_out
 function util.se_matter(params)
