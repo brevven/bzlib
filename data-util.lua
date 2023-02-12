@@ -1243,4 +1243,15 @@ function util.sum_products(recipe_name)
   return 0
 end
 
+function util.set_vtk_dcm_ingredients()
+  if mods["vtk-deep-core-mining"] then
+    local sum = util.sum_products("vtk-deepcore-mining-ore-chunk-refining")
+    log("setting vtk deepcore based on " .. serpent.dump(sum) .. " to " ..serpent.dump(sum*0.8))
+    util.set_ingredient("vtk-deepcore-mining-ore-chunk-refining", "vtk-deepcore-mining-ore-chunk", sum * 0.8)
+    local sum = 1+util.sum_products("vtk-deepcore-mining-ore-chunk-refining-no-uranium")
+    log("setting vtk deepcore no uranium to " .. serpent.dump(sum))
+    util.set_ingredient("vtk-deepcore-mining-ore-chunk-refining-no-uranium", "vtk-deepcore-mining-ore-chunk", sum)
+  end
+end
+
 return util
