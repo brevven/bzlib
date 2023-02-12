@@ -1222,4 +1222,25 @@ function util.add_unlock_force(technology_name, recipe)
     util.add_unlock(technology_name, recipe)
 end
 
+-- sum the products of a recipe 
+function util.sum_products(recipe_name)
+  -- this is going to end up approximate in some cases, integer division is probs fine
+  if data.raw.recipe[recipe_name] then
+    local recipe = data.raw.recipe[recipe_name]
+    if not recipe.results then return recipe.result_count end
+    local sum = 0
+    for i, result in pairs(recipe.results) do
+      local amt = 0
+      if result[2] then amt = result[2]
+      elseif result.amount then amt = result.amount
+      elseif result.amount_min then amt = (result.amount_min + result.amount_max)/2
+      end
+      if result.probability then amt = amt * result.probability end
+      sum = sum + amt
+    end
+    return sum
+  end
+  return 0
+end
+
 return util
