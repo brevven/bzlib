@@ -1009,7 +1009,8 @@ function util.add_crafting_category(entity_type, entity, category)
    end
 end
 
-function util.add_to_ingredient(recipe, ingredient, amount)
+function util.add_to_ingredient(recipe, ingredient, amount, options)
+  if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe] then
     add_to_ingredient(data.raw.recipe[recipe], ingredient, amount)
     add_to_ingredient(data.raw.recipe[recipe].normal, ingredient, amount)
