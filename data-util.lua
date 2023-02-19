@@ -716,6 +716,8 @@ function multiply_recipe(recipe, multiple)
   if recipe then
     if recipe.energy_required then
       recipe.energy_required = recipe.energy_required * multiple
+    else
+      recipe.energy_required = 0.5 * multiple  -- 0.5 is factorio default
     end
     if recipe.result_count then
       recipe.result_count = recipe.result_count * multiple
