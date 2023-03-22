@@ -899,13 +899,13 @@ end
 function util.replace_product(recipe_name, old, new, options)
   if not should_force(options) and bypass(recipe_name) then return end
   if data.raw.recipe[recipe_name] then
-    replace_product(data.raw.recipe[recipe_name], old, new)
-    replace_product(data.raw.recipe[recipe_name].normal, old, new)
-    replace_product(data.raw.recipe[recipe_name].expensive, old, new)
+    replace_product(data.raw.recipe[recipe_name], old, new, options)
+    replace_product(data.raw.recipe[recipe_name].normal, old, new, options)
+    replace_product(data.raw.recipe[recipe_name].expensive, old, new, options)
   end
 end
 
-function replace_product(recipe, old, new)
+function replace_product(recipe, old, new, options)
   if recipe then
     if recipe.main_product == old then
       recipe.main_product = new
