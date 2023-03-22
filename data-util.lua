@@ -559,7 +559,7 @@ function util.get_ingredient_amount(recipe_name, ingredient_name)
         if ingredient.name == ingredient_name then return ingredient.amount end
       end
     end
-    return 1
+    return 0
   end
   return 0
 end
