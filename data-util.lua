@@ -65,9 +65,11 @@ function util.fe_plus(sub)
 end
 
 function util.get_stack_size(default) 
-  if mods["Krastorio2"] then
-    size = tonumber(krastorio.general.getSafeSettingValue("kr-stack-size"))
-    return size or default
+  if mods.Krastorio2 then
+    local size = get_setting("kr-stack-size")
+    if size and tonumber(size) then
+      return tonumber(size)
+    end
   end
   return default
 end
