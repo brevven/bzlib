@@ -356,7 +356,7 @@ function util.add_unlock(technology_name, recipe)
 end
 
 -- Check if a tech unlocks a recipe
-function util.check_unlock(technology_name, recipe)
+function util.check_unlock(technology_name, recipe_name)
   local technology = data.raw.technology[technology_name]
   if technology and technology.effects then
     for i, effect in pairs(technology.effects) do
