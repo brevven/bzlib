@@ -130,33 +130,53 @@ function util.k2matter(params)
   if not params.k2matter.minimum_conversion_quantity then
     params.k2matter.minimum_conversion_quantity = 10
   end
-  data:extend(
-      {
+  if not data.raw.technology[params.k2matter.unlocked_by_technology] then
+    local icon = ""
+    if params.k2baseicon then
+      icon = util.k2assets().."/technologies/matter-"..params.k2baseicon..".png"
+    else
+      icon = util.k2assets().."/technologies/backgrounds/matter.png"
+    end
+    
+    data:extend(
         {
-          type = "technology",
-          name = params.k2matter.unlocked_by_technology,
-          icons =
           {
+            type = "technology",
+            name = params.k2matter.unlocked_by_technology,
+            icons =
             {
-              icon = util.k2assets().."/technologies/matter-"..params.k2baseicon..".png",
-              icon_size = 256,
+              {
+                icon = icon,
+                icon_size = 256,
+              },
+              params.icon,
             },
-            params.icon,
+            prerequisites = {"kr-matter-processing"},
+            unit =
+            {
+              count = 350,
+              ingredients = mods["space-exploration"] and 
+              {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"se-astronomic-science-pack-4", 1},
+                {"se-energy-science-pack-4", 1},
+                {"se-material-science-pack-4", 1},
+                {"se-deep-space-science-pack-2", 1},
+                {"se-kr-matter-science-pack-2", 1},
+              } or
+              {
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"matter-tech-card", 1}
+              },
+              time = 45,
+            },
+            localised_name = {"technology-name.k2-conversion", {"item-name."..params.k2matter.item_name}},
           },
-          prerequisites = {"kr-matter-processing"},
-          unit =
-          {
-            count = 350,
-            ingredients =
-            {
-              {"production-science-pack", 1},
-              {"utility-science-pack", 1},
-              {"matter-tech-card", 1}
-            },
-            time = 45,
-          }
-        },
-      })
+        })
+  end
   matter.createMatterRecipe(params.k2matter)
 end
 
