@@ -48,12 +48,25 @@ function util.warptorio2_expansion_helper()
       local fix_items={
         {name='iron-plate',count=100},
         {name='iron-gear-wheel',count=100},
-        {name='repair-pack',count=20},
+        {name='repair-pack',count=50},
       }
-      local entities = game.surfaces[1].find_entities_filtered{area = {{-100, -100}, {100, 100}}, name = "wpe_broken_lab"}
+      local entities = {}
+      for i=1,100 do
+        if game.surfaces[i] then
+          local lentities= game.surfaces[i].find_entities_filtered{area = {{-100, -100}, {100, 100}}, name = "wpe_broken_lab"}
+          for j, entity in pairs(lentities) do
+            table.insert(entities, entity)
+          end
+        end
+      end
       if #entities == 0 then
-        -- The lab has already been fixed
-        global.done = true
+        if global.checking then
+          -- The lab has already been fixed
+          global.done = true
+        else
+          -- Check that the lab doesn't reappear due to a warp
+          global.checking = true
+        end
         return
       end
       if check_container_for_items(entities[1],fix_items) then
