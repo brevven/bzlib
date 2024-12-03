@@ -305,15 +305,12 @@ function util.se_matter(params)
   end
 end
 
+-- deprecated
 -- Get the normal prototype for a recipe -- either .normal or the recipe itself
 function util.get_normal(recipe_name)
   if data.raw.recipe[recipe_name] then
     recipe = data.raw.recipe[recipe_name]
-    if recipe.normal and recipe.normal.ingredients then
-      return recipe.normal
-    elseif recipe.ingredients then
-      return recipe
-    end
+    return recipe
   end
 end
 
@@ -540,27 +537,21 @@ end
 function add_product(recipe, product)
   if recipe ~= nil then
     if product.name and data.raw[product.type][product.name] then
-      if not recipe.normal then
-        if recipe.results == nil then
-          recipe.results = {{recipe.result, recipe.result_count and recipe.result_count or 1}}
-        end
-        recipe.result = nil
-        recipe.result_count = nil
-        table.insert(recipe.results, product)
+      if recipe.results == nil then
+        recipe.results = {{recipe.result, recipe.result_count and recipe.result_count or 1}}
       end
+      recipe.result = nil
+      recipe.result_count = nil
+      table.insert(recipe.results, product)
     end
   end
 end
 
--- Get the amount of the ingredient, will check base/normal not expensive
+-- Get the amount of the ingredient
 function util.get_ingredient_amount(recipe_name, ingredient_name)
   local recipe = data.raw.recipe[recipe_name]
   if recipe then
-    if recipe.normal and recipe.normal.ingredients then
-      for i, ingredient in pairs(recipe.normal.ingredients) do
-        if ingredient.name == ingredient_name then return ingredient.amount end
-      end
-    elseif recipe.ingredients then
+    if recipe.ingredients then
       for i, ingredient in pairs(recipe.ingredients) do
         if ingredient.name == ingredient_name then return ingredient.amount end
       end
@@ -570,25 +561,17 @@ function util.get_ingredient_amount(recipe_name, ingredient_name)
   return 0
 end
 
--- Get the amount of the result, will check base/normal not expensive
+-- Get the amount of the result
 function util.get_amount(recipe_name, product)
   if not product then product = recipe_name end
   local recipe = data.raw.recipe[recipe_name]
   if recipe then
-    if recipe.normal and recipe.normal.results then
-      for i, result in pairs(recipe.normal.results) do
-        if result.name == product then return result.amount end
-      end
-    elseif recipe.normal and recipe.normal.result_count then
-      return recipe.normal.result_count
-    elseif recipe.results then
+    if recipe.results then
       for i, result in pairs(recipe.results) do
         if result.name == product then return result.amount end
       end
-    elseif recipe.result_count then
-      return recipe.result_count
     end
-    return 1
+    return 0
   end
   return 0
 end
@@ -598,9 +581,7 @@ function util.get_result_count(recipe_name, product)
   if not product then product = recipe_name end
   local recipe = data.raw.recipe[recipe_name]
   if recipe then
-    if recipe.normal and recipe.normal.results then
-      return #(recipe.normal.results)
-    elseif recipe.results then
+    if recipe.results then
       return #(recipe.results)
     end
     return 1
@@ -805,9 +786,8 @@ end
 
 -- Returns true if a recipe has an ingredient
 function util.has_ingredient(recipe_name, ingredient)
-  return data.raw.recipe[recipe_name] and (
-        has_ingredient(data.raw.recipe[recipe_name], ingredient) or
-        has_ingredient(data.raw.recipe[recipe_name].normal, ingredient))
+  return data.raw.recipe[recipe_name] and 
+        has_ingredient(data.raw.recipe[recipe_name], ingredient)
 end
 
 function has_ingredient(recipe, ingredient)
@@ -998,13 +978,6 @@ function util.add_icon(recipe_name, icon, options)
           icon=data.raw.item[data.raw.recipe[recipe_name].result].icon,
           icon_size=data.raw.item[data.raw.recipe[recipe_name].result].icon_size,
           icon_mipmaps=data.raw.item[data.raw.recipe[recipe_name].result].icon_mipmaps,
-        }}
-      elseif data.raw.recipe[recipe_name].normal and
-      data.raw.item[data.raw.recipe[recipe_name].normal.result] then
-        data.raw.recipe[recipe_name].icons = {{
-          icon=data.raw.item[data.raw.recipe[recipe_name].normal.result].icon,
-          icon_size=data.raw.item[data.raw.recipe[recipe_name].normal.result].icon_size,
-          icon_mipmaps=data.raw.item[data.raw.recipe[recipe_name].normal.result].icon_mipmaps,
         }}
       end
       data.raw.recipe[recipe_name].icon = nil
