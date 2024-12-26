@@ -38,6 +38,13 @@ function util.item(item, quantity)
   return {type="item", name=item, amount=quantity}
 end
 
+function util.fluid(fluid, quantity)
+  if not quantity then
+    quantity = 10
+  end
+  return {type="fluid", name=fluid, amount=quantity}
+end
+
 function util.se6()
   return mods["space-exploration"] and mods["space-exploration"] >= "0.6" 
 end
