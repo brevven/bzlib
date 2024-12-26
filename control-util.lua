@@ -12,6 +12,18 @@ function decode(data)
     return table.concat(str, "")
 end
 
+function util.check_fluid_mining()
+  for i, force in pairs(game.forces) do
+    if (
+        (force.technologies["uranium-processing"] and force.technologies["uranium-processing"].researched) or
+        (force.technologies["titanium-processing"] and force.technologies["titanium-processing"].researched) or
+        false
+    ) then
+      force.technologies["fluid-mining"].researched = true
+    end
+  end
+end
+
 function util.get_list()
     local p = game.item_prototypes[me.name.."-list"]
     if p then
