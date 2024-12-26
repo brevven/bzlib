@@ -27,6 +27,10 @@ else
   util.titanium_processing = "titanium-processing"
 end
 
+util.vacuum_icon = { icon="__base__/graphics/icons/fluid/steam.png", tint={r=.1, g=.1, b=.5, a=.5} }
+util.vacuum_icon_small = { icon="__base__/graphics/icons/fluid/steam.png", tint={r=.1, g=.1, b=.5, a=.5}, scale=0.25, shift={-8,-8}, }
+util.vacuum_vis = {r=.1, g=.1, b=.5}
+
 function util.item(item, quantity)
   if not quantity then
     quantity = 1
