@@ -11,6 +11,10 @@ util.get_setting = util.me.get_setting
 util.titanium_plate = ""
 util.titanium_processing = ""
 
+util.A = {{"automation-science-pack", 1}}
+util.AL = {{"automation-science-pack", 1}, {"logistic-science-pack", 1}}
+util.ALC = {{"automation-science-pack", 1}, {"logistic-science-pack", 1}, {"chemical-science-pack", 1}}
+
 if mods["FactorioExtended-Plus-Core"] then
   util.titanium_plate = "titanium-alloy"
 else
