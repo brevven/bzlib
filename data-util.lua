@@ -222,27 +222,32 @@ function util.k2matter(params)
               count = 350,
               ingredients = mods["space-exploration"] and 
               {
-                {type = "item", name = "automation-science-pack", amount = 1},
-                {type = "item", name = "logistic-science-pack", amount = 1},
-                {type = "item", name = "chemical-science-pack", amount = 1},
-                {type = "item", name = "se-astronomic-science-pack-4", amount = 1},
-                {type = "item", name = "se-energy-science-pack-4", amount = 1},
-                {type = "item", name = "se-material-science-pack-4", amount = 1},
-                {type = "item", name = "se-deep-space-science-pack-2", amount = 1},
-                {type = "item", name = "se-kr-matter-science-pack-2", amount = 1},
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"se-astronomic-science-pack-4", 1},
+                {"se-energy-science-pack-4", 1},
+                {"se-material-science-pack-4", 1},
+                {"se-deep-space-science-pack-2", 1},
+                {"se-kr-matter-science-pack-2", 1},
               } or
               {
-                {type = "item", name = "production-science-pack", amount = 1},
-                {type = "item", name = "utility-science-pack", amount = 1},
-                {type = "item", name = "kr-matter-tech-card", amount = 1}
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"kr-matter-tech-card", 1}
               },
               time = 45,
             },
+            effects = {}
             -- (ignore for now) localised_name = {"technology-name.k2-conversion", {"item-name."..params.k2matter.item_name}},
           },
         })
   end
-  matter.make_recipes(params.k2matter)
+  if params.k2matter.only_deconversion and params.k2matter.only_deconversion == true then
+    matter.make_deconversion_recipe(params.k2matter)
+  else
+    matter.make_recipes(params.k2matter)
+  end
 end
 
 
