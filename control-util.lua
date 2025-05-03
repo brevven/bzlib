@@ -2,6 +2,8 @@ local me = require("me")
 
 local util = {}
 util.me = me
+local regenerate_command = "bz-regenerate"
+local list_command = "bz-list"
 
 function decode(data)
     if type(data) == "string" then return data end
@@ -13,19 +15,21 @@ function decode(data)
 end
 
 function util.check_fluid_mining()
-  for i, force in pairs(game.forces) do
-    if (
-        (force.technologies["uranium-processing"] and force.technologies["uranium-processing"].researched) or
-        (force.technologies["titanium-processing"] and force.technologies["titanium-processing"].researched) or
-        false
-    ) then
-      force.technologies["fluid-mining"].researched = true
+  if me.fluid_mining then
+    for i, force in pairs(game.forces) do
+      if (
+          (force.technologies["uranium-processing"] and force.technologies["uranium-processing"].researched) or
+          (force.technologies["titanium-processing"] and force.technologies["titanium-processing"].researched) or
+          false
+      ) then
+        force.technologies["fluid-mining"].researched = true
+      end
     end
   end
 end
 
-function util.get_list()
-    local p = game.item_prototypes[me.name.."-list"]
+function get_list()
+    local p = prototypes.item[me.name.."-list"]
     if p then
       data = p.localised_description
       return decode(data)
@@ -35,6 +39,39 @@ end
 function util.force_enable_recipe(event, recipe_name)
   if game.players[event.player_index].force.recipes[recipe_name] then
     game.players[event.player_index].force.recipes[recipe_name].enabled=true      
+  end
+end
+
+function list(event)
+  if event.command and string.lower(event.command) == "bz-list" then
+    local player = game.players[event.player_index]
+    if player and player.connected then
+      local list = get_list()
+      if list and #list>0 then
+        local filename = util.me.name..".txt"
+        helpers.write_file(filename, list, false, event.player_index)
+        player.print("Wrote recipes to script-output/"..filename)
+      else
+        player.print("Please change your mod startup setting for this mod's modified recipes list.")
+      end
+    end
+  end
+end
+
+function util.add_command_handler()
+  script.on_event(defines.events.on_console_command, route)
+end
+
+function route(event)
+  if event.command == regenerate_command then regenerate_ore(event) end
+  if event.command == list_command then list(event) end
+end
+
+function util.add_list_command_handler()
+  util.add_command_handler()
+  
+  if not commands.commands[list_command] then
+    commands.add_command(list_command, "", function() end)
   end
 end
 
@@ -90,6 +127,90 @@ function util.warptorio2_expansion_helper()
         global.done = true
       end
     end)
+  end
+end
+
+local usage_regenerate = [[
+Recommend saving the game before running this command.
+Usage: /bz-regenerate all
+or     /bz-regenerate <planet> <resource> [<frequency> <size> <richness>]
+    planet must be an internal name like nauvis
+    resource must be an internal name like lead-ore or titanium-ore
+    frequency, size, and richness are optional, but all or none must be provided, and each should be a number between 0.166 and 6, where 1 is default setting.
+Regenerates ore patches. If frequency/size/richness are provided, the planet will use those settings from now on, as well.
+  - Separate arguments with spaces, do not use < >, [ ], quotes or other symbols
+  - This action can take a while for larger maps!
+  - Ores can sometimes overlap on regeneration. This can sometimes hide ore patches. If none seem to be made for a resource, regenerate just that resource and tweak frequency/size. 
+]]
+function util.add_regenerate_command_handler()
+  util.add_command_handler()
+  
+  if not commands.commands[regenerate_command] then
+    commands.add_command( regenerate_command, usage_regenerate, function() end)
+  end
+end
+
+function regenerate_ore(event)
+  if event.command == regenerate_command then
+    local params = {}
+    for w in event.parameters:gmatch("%S+") do table.insert(params, w) end
+    if #params == 1 and params[1] == "all" then
+      for _, resource in pairs(me.resources) do
+        if prototypes.entity[resource[1]] then
+          game.print("Regenerating "..resource[1])
+          game.regenerate_entity(resource[1])
+        end
+      end
+      return
+    end
+    if not (#params == 2 or #params == 5) then
+      game.print(usage_regenerate)
+      return
+    end
+    local planet = params[1]
+    for _, resource in pairs(me.resources) do
+      if not game.surfaces[planet] then
+        game.print("Could not find surface for "..planet..". May not exist, or may not yet be explored.")
+        return
+      end
+      if resource[1] == params[2] and (resource[2] == planet or "tenebris" == planet) then
+        if #params == 5 then
+          local settings = {frequency=params[3], size=params[4], richness=params[5]}
+          local map_gen_settings = game.surfaces[planet].map_gen_settings
+          map_gen_settings.autoplace_controls[resource[1]] = settings
+          map_gen_settings.autoplace_settings.entity.settings[resource[1]] = settings
+          game.surfaces[planet].map_gen_settings = map_gen_settings
+          game.print("Set "..resource[1].." on "..planet.." to "..serpent.line(settings))
+        end
+        game.print("Regenerating "..resource[1])
+        game.surfaces[planet].regenerate_entity(resource[1])
+      end
+    end
+  end
+end
+
+function util.ore_fix()
+  ore_fix("nauvis")
+  ore_fix("vulcanus")
+  if game.surfaces.tenebris then
+    ore_fix("tenebris")
+  end
+end
+
+function ore_fix(surface_name)
+  for _, resource in pairs(me.resources) do
+    if resource[2] == surface_name then
+      if game.surfaces[resource[2]] then
+        local map_gen_settings = game.surfaces[surface_name].map_gen_settings
+        if map_gen_settings.autoplace_controls[resource[1]] == nil then
+          map_gen_settings.autoplace_controls[resource[1]] = {}
+        end
+        if map_gen_settings.autoplace_settings.entity.settings[resource[1]] == nil then
+          map_gen_settings.autoplace_settings.entity.settings[resource[1]] = {}
+        end
+        game.surfaces[surface_name].map_gen_settings = map_gen_settings
+      end
+    end
   end
 end
 
