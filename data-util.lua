@@ -500,8 +500,8 @@ function util.se_landfill(params)
         category = "hard-recycling",
         order = "z-b-"..params.ore,
         subgroup = "terrain",
-        result = "landfill",
-        ingredients = {{params.ore, 50}},
+        results = {{type = "item",name ="landfill",amount = 1}},
+        ingredients = {{ type = "item", name = params.ore, amount = 50}},
       }
     })
     util.add_unlock("se-recycling-facility", lname)
@@ -602,15 +602,15 @@ function util.se_matter(params)
         energy_required = params.energy_required,
         enabled = false,
         ingredients = {
-          {sedata, 1},
+          {type="item",  name=sedata, amount=1},
           {type="fluid", name="se-particle-stream", amount=50},
           {type="fluid", name="se-space-coolant-supercooled", amount=25},
         },
         results = {
-          {params.ore, params.quant_out},
-          {"se-contaminated-scrap", 1},
-          {type=item, name=sedata, amount=1, probability=.99},
-          {type=item, name=sejunk, amount=1, probability=.01},
+          {type="item", name=params.ore, amount=params.quant_out},
+          {type="item", name="se-contaminated-scrap", amount= 1},
+          {type="item", name=sedata, amount=1, probability=.99},
+          {type="item", name=sejunk, amount=1, probability=.01},
           {type="fluid", name="se-space-coolant-hot", amount=25, ignored_by_stats=25, ignored_by_productivity=25},
         }
       }
@@ -641,13 +641,13 @@ function util.se_matter(params)
           energy_required = 30,
           enabled = false,
           ingredients = {
-            {"se-kr-matter-liberation-data", 1},
-            {params.ore, params.quant_in},
+            {type = "item", name="se-kr-matter-liberation-data", amount=1},
+            {type = "item", name=params.ore, amount=params.quant_in},
             {type="fluid", name="se-particle-stream", amount=50},
           },
           results = {
-            {type=item, name="se-kr-matter-liberation-data", amount=1, probability=.99},
-            {type=item, name=sejunk, amount=1, probability=.01},
+            {type="item", name="se-kr-matter-liberation-data", amount=1, probability=.99},
+            {type="item", name=sejunk, amount=1, probability=.01},
             {type="fluid", name="se-particle-stream", amount=params.stream_out, ignored_by_stats=50, ignored_by_productivity=50},
           }
         }
@@ -675,8 +675,8 @@ function util.se_matter(params)
                 {"se-astronomic-science-pack-4", 1},
                 {"se-energy-science-pack-4", 1},
                 {"se-material-science-pack-4", 1},
-                {"matter-tech-card", 1},
-                {"se-deep-space-science-pack-1", 1},
+                {"kr-matter-tech-card",1},
+                {"se-deep-space-science-pack-1",1},
               }
               
             },
